@@ -28,17 +28,25 @@ public class Forklift : MonoBehaviour
         forkStartPos = fork.transform.position.y;
     }
 
+    private void UpdateWheelPose(WheelCollider _collider, Transform _transform)
+    {
+        Vector3 _pos = _transform.position;
+        Quaternion _quat = _transform.rotation;
+
+        _collider.GetWorldPose(out _pos, out _quat);
+
+        _transform.position = _pos;
+        _transform.rotation = _quat;
+    }
+
     // move up and down
     private void Update()
     {
-        LFwheelMesh.transform.position = LFwheel.transform.position;
-        LFwheelMesh.transform.rotation = LFwheel.transform.rotation;
-
-        RFwheelMesh.transform.position = RFwheel.transform.position;
-        RFwheelMesh.transform.rotation = RFwheel.transform.rotation;
-
-        LBwheelMesh.transform.rotation = LBwheel.transform.rotation;
-        RBwheelMesh.transform.rotation = RBwheel.transform.rotation;
+        UpdateWheelPose(LBwheel, LBwheelMesh.transform);
+        UpdateWheelPose(LFwheel, LFwheelMesh.transform);
+        UpdateWheelPose(RBwheel, RBwheelMesh.transform);
+        UpdateWheelPose(RFwheel, RFwheelMesh.transform);
+        
 
         if (Input.GetKey(KeyCode.E) && fork.transform.position.y < forkStartPos + 8)
         {
@@ -72,18 +80,43 @@ public class Forklift : MonoBehaviour
         }
         if (Input.GetKey(KeyCode.A))
         {
-            LFwheel.steerAngle -= 10f * Time.deltaTime;
-            RFwheel.steerAngle -= 10f * Time.deltaTime;
+            LBwheel.steerAngle -= 25f * Time.deltaTime;
+            RBwheel.steerAngle -= 25f * Time.deltaTime;
+            LBwheel.steerAngle = Mathf.Clamp(LBwheel.steerAngle, -30f, 30f);
+            RBwheel.steerAngle = Mathf.Clamp(RBwheel.steerAngle, -30f, 30f);
         }
         else if (Input.GetKey(KeyCode.D))
         {
-            LFwheel.steerAngle += 10f * Time.deltaTime;
-            RFwheel.steerAngle += 10f * Time.deltaTime;
+            LBwheel.steerAngle += 25f * Time.deltaTime;
+            RBwheel.steerAngle += 25f * Time.deltaTime;
+            LBwheel.steerAngle = Mathf.Clamp(LBwheel.steerAngle, -30f, 30f);
+            RBwheel.steerAngle = Mathf.Clamp(RBwheel.steerAngle, -30f, 30f);
+        }
+
+        if (Input.GetKey(KeyCode.Space))
+        {
+            LBwheel.brakeTorque = 1000f;
+            LFwheel.brakeTorque = 1000f;
+            RBwheel.brakeTorque = 1000f;
+            RFwheel.brakeTorque = 1000f;
         }
         else
         {
-            LFwheel.steerAngle = 0f;
-            RFwheel.steerAngle = 0f;
+            LBwheel.brakeTorque = 0f;
+            LFwheel.brakeTorque = 0f;
+            RBwheel.brakeTorque = 0f;
+            RFwheel.brakeTorque = 0f;
         }
-    }
+
+        if (Input.GetKey(KeyCode.Q))
+        {
+            // grab fork game object then rotate on x axis
+            fork.transform.Rotate(Vector3.left * 2f * Time.deltaTime);
+        }
+        else if (Input.GetKey(KeyCode.Z))
+        {
+            // grab fork game object then rotate on x axis
+            fork.transform.Rotate(Vector3.right * 2f * Time.deltaTime);
+        }
+    }   
 }
